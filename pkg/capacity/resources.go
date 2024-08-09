@@ -411,7 +411,7 @@ func resourceString(resourceType string, actual, allocatable resource.Quantity, 
 			allocatableStr = fmt.Sprintf("%d", allocatable.Value())
 		}
 
-		return fmt.Sprintf("%s/%s", actualStr, allocatableStr)
+		return fmt.Sprintf("%s/%s (%d%%%%)", actualStr, allocatableStr, int64(100-utilPercent))
 	}
 
 	switch resourceType {

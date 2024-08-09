@@ -44,6 +44,9 @@ var SupportedSortAttributes = [...]string{
 // Mebibyte represents the number of bytes in a mebibyte.
 const Mebibyte = 1024 * 1024
 
+// Gigabyte represents the number of bytes in a gigabyte.
+const Gigabyte = Mebibyte * 1024
+
 type resourceMetric struct {
 	resourceType string
 	allocatable  resource.Quantity
@@ -401,8 +404,8 @@ func resourceString(resourceType string, actual, allocatable resource.Quantity, 
 			actualStr = fmt.Sprintf("%dm", allocatable.MilliValue()-actual.MilliValue())
 			allocatableStr = fmt.Sprintf("%dm", allocatable.MilliValue())
 		case "memory":
-			actualStr = fmt.Sprintf("%dMi", formatToMegiBytes(allocatable)-formatToMegiBytes(actual))
-			allocatableStr = fmt.Sprintf("%dMi", formatToMegiBytes(allocatable))
+			actualStr = fmt.Sprintf("%dG", formatToGigaBytes(allocatable)-formatToGigaBytes(actual))
+			allocatableStr = fmt.Sprintf("%dG", formatToGigaBytes(allocatable))
 		default:
 			actualStr = fmt.Sprintf("%d", allocatable.Value()-actual.Value())
 			allocatableStr = fmt.Sprintf("%d", allocatable.Value())
@@ -415,7 +418,7 @@ func resourceString(resourceType string, actual, allocatable resource.Quantity, 
 	case "cpu":
 		actualStr = fmt.Sprintf("%dm", actual.MilliValue())
 	case "memory":
-		actualStr = fmt.Sprintf("%dMi", formatToMegiBytes(actual))
+		actualStr = fmt.Sprintf("%dG", formatToGigaBytes(actual))
 	default:
 		actualStr = fmt.Sprintf("%d", actual.Value())
 	}
@@ -431,6 +434,14 @@ func formatToMegiBytes(actual resource.Quantity) int64 {
 	return value
 }
 
+func formatToGigaBytes(actual resource.Quantity) int64 {
+	value := actual.Value() / Gigabyte
+	if actual.Value()%Gigabyte != 0 {
+		value++
+	}
+	return value
+}
+
 // NOTE: This might not be a great place for closures due to the cyclical nature of how resourceType works. Perhaps better implemented another way.
 func (rm resourceMetric) valueFunction() (f func(r resource.Quantity) string) {
 	switch rm.resourceType {
@@ -440,7 +451,7 @@ func (rm resourceMetric) valueFunction() (f func(r resource.Quantity) string) {
 		}
 	case "memory":
 		f = func(r resource.Quantity) string {
-			return fmt.Sprintf("%dMi", formatToMegiBytes(r))
+			return fmt.Sprintf("%dG", formatToGigaBytes(r))
 		}
 	}
 	return f
@@ -463,7 +474,7 @@ func (rm resourceMetric) percent(r resource.Quantity) int64 {
 
 func resourceCSVString(resourceType string, actual resource.Quantity) string {
 	if resourceType == "memory" {
-		return fmt.Sprintf("%d", formatToMegiBytes(actual))
+		return fmt.Sprintf("%d", formatToGigaBytes(actual))
 	}
 	return fmt.Sprintf("%d", actual.MilliValue())
 }

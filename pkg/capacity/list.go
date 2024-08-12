@@ -65,6 +65,7 @@ type listClusterTotals struct {
 
 type listPrinter struct {
 	cm             *clusterMetric
+	showNodes      bool
 	showPods       bool
 	showContainers bool
 	showUtil       bool

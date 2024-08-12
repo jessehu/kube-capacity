@@ -23,6 +23,7 @@ import (
 
 type tablePrinter struct {
 	cm              *clusterMetric
+	showNodes       bool
 	showPods        bool
 	showUtil        bool
 	showPodCount    bool
@@ -104,7 +105,10 @@ func (tp *tablePrinter) printLine(tl *tableLine) {
 }
 
 func (tp *tablePrinter) getLineItems(tl *tableLine) []string {
-	lineItems := []string{tl.node}
+	lineItems := []string{}
+	if tp.showNodes {
+		lineItems = []string{tl.node}
+	}
 
 	if tp.showPodCount {
 		lineItems = append(lineItems, tl.podCount)

@@ -50,15 +50,15 @@ type tableLine struct {
 var headerStrings = tableLine{
 	node:           "NODE",
 	namespace:      "NAMESPACE",
+	podCount:       "POD COUNT",
 	pod:            "POD",
 	container:      "CONTAINER",
 	cpuRequests:    "CPU REQUESTS",
-	cpuLimits:      "CPU LIMITS",
-	cpuUtil:        "CPU UTIL",
 	memoryRequests: "MEMORY REQUESTS",
-	memoryLimits:   "MEMORY LIMITS",
+	cpuUtil:        "CPU UTIL",
 	memoryUtil:     "MEMORY UTIL",
-	podCount:       "POD COUNT",
+	cpuLimits:      "CPU LIMITS",
+	memoryLimits:   "MEMORY LIMITS",
 }
 
 func (tp *tablePrinter) Print() {
@@ -106,6 +106,10 @@ func (tp *tablePrinter) printLine(tl *tableLine) {
 func (tp *tablePrinter) getLineItems(tl *tableLine) []string {
 	lineItems := []string{tl.node}
 
+	if tp.showPodCount {
+		lineItems = append(lineItems, tl.podCount)
+	}
+
 	if tp.showContainers || tp.showPods {
 		if tp.showNamespace {
 			lineItems = append(lineItems, tl.namespace)
@@ -118,22 +122,15 @@ func (tp *tablePrinter) getLineItems(tl *tableLine) []string {
 	}
 
 	lineItems = append(lineItems, tl.cpuRequests)
-	lineItems = append(lineItems, tl.cpuLimits)
+	lineItems = append(lineItems, tl.memoryRequests)
 
 	if tp.showUtil {
 		lineItems = append(lineItems, tl.cpuUtil)
-	}
-
-	lineItems = append(lineItems, tl.memoryRequests)
-	lineItems = append(lineItems, tl.memoryLimits)
-
-	if tp.showUtil {
 		lineItems = append(lineItems, tl.memoryUtil)
 	}
 
-	if tp.showPodCount {
-		lineItems = append(lineItems, tl.podCount)
-	}
+	lineItems = append(lineItems, tl.cpuLimits)
+	lineItems = append(lineItems, tl.memoryLimits)
 
 	return lineItems
 }
